@@ -4,18 +4,23 @@ var app = express();
 var fs = require("fs");
 app.use( bodyParser.json() ); 
 
+//File name were messages will be stored
 const MESSAGES_FILE = __dirname + "/" + "messages.json" 
 
+//REST API end points:
+
+//1. List messages currently in the system (messages file)
 app.get('/listMessages', function (req, res) {
    fs.readFile( MESSAGES_FILE, 'utf8', function (err, data) {
       res.status(200).send(data);
    });
 })
 
+//2. Add a new message: {"id":anId, "text":"some text"}
 app.post('/addMessage', function (req, res) {
-   if(!req.body.text) {
+   if(!req.body.id || !req.body.text) {
       res.status(400);
-      res.end('The message does not have any text and cannot be saved');
+      res.end('The message does not have text and/or id and can not be saved');
       return
    }
    fs.readFile( MESSAGES_FILE, 'utf8', function (err, data) {
@@ -26,6 +31,7 @@ app.post('/addMessage', function (req, res) {
    });
 })
 
+//3. Check if a message is a palindrome: {"text":"some text"}
 app.post('/isPalindrome', function (req, res) {
    if(!req.body.text) {
       res.status(400);
@@ -44,6 +50,7 @@ app.post('/isPalindrome', function (req, res) {
    }
 })
 
+//4. Retrive a message by id
 app.get('/message', function (req, res) {
    if(! req.query.id) {
       res.status(400);
@@ -67,6 +74,7 @@ app.get('/message', function (req, res) {
    });
 })
 
+//5. Delete a message by id
 app.delete('/message', function (req, res) {
    if(! req.query.id) {
       res.status(400);
@@ -93,6 +101,7 @@ app.delete('/message', function (req, res) {
    res.end( JSON.stringify(dataArray) );
 })
 
+//6. Update a message by id (needs text field as well)
 app.put('/message', function (req, res) {
    if(!req.body.id || !req.body.text) {
       res.status(400);
@@ -117,6 +126,7 @@ app.put('/message', function (req, res) {
    res.end( JSON.stringify(dataArray) );
 })
 
+// Start server on port 8080
 var server = app.listen(8080, function () {
    var port = server.address().port
    console.log("Messenger listening at port: %s", port)
